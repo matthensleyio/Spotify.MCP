@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <!-- Claude Desktop Configuration Custom Action -->
+    <CustomAction Id="ConfigureClaudeDesktop_PowerShell"
+                  Script="vbscript"
+                  Execute="deferred"
+                  Impersonate="yes"
+                  Return="ignore">
+      <![CDATA[
+        Set objShell = CreateObject("WScript.Shell")
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+        
+        ' Get user's AppData path
+        strAppData = objShell.ExpandEnvironmentStrings("%APPDATA%")
+        strClaudeDir = strAppData & "\Claude"
+        strConfigFile = strClaudeDir & "\claude_desktop_config.json"
+        
+        ' Create Claude directory if it doesn't exist
+        If Not objFSO.FolderExists(strClaudeDir) Then
+            objFSO.CreateFolder(strClaudeDir)
+        End If
+        
+        ' Read existing config or create new one
+        Dim strConfig
+        If objFSO.FileExists(strConfigFile) Then
+            Set objFile = objFSO.OpenTextFile(strConfigFile, 1)
+            strConfig = objFile.ReadAll()
+            objFile.Close()
+        Else
+            strConfig = "{" & vbCrLf & "  ""mcpServers"": {}" & vbCrLf & "}"
+        End If
+        
+        ' Parse and add Spotify MCP Server configuration
+        ' This is a simplified approach - in production you'd want proper JSON parsing
+        If InStr(strConfig, """spotify""") = 0 Then
+            strNewServer = "    ""spotify"": {" & vbCrLf & _
+                          "      ""command"": """ & Session.Property("INSTALLFOLDER") & "Spotify.MCP.Host.exe""" & vbCrLf & _
+                          "    }"
+            
+            ' Insert the new server configuration
+            Dim insertPos
+            insertPos = InStr(strConfig, """mcpServers"": {")
+            If insertPos > 0 Then
+                insertPos = insertPos + Len("""mcpServers"": {")
+                strConfig = Left(strConfig, insertPos) & vbCrLf & strNewServer & vbCrLf & "  " & Mid(strConfig, insertPos + 1)
+            End If
+            
+            ' Write updated configuration
+            Set objFile = objFSO.CreateTextFile(strConfigFile, True)
+            objFile.Write(strConfig)
+            objFile.Close()
+        End If
+      ]]>
+    </CustomAction>
+
+    <!-- Remove configuration on uninstall -->
+    <CustomAction Id="RemoveClaudeDesktopConfig_PowerShell"
+                  Script="vbscript"
+                  Execute="deferred"
+                  Impersonate="yes"
+                  Return="ignore">
+      <![CDATA[
+        Set objShell = CreateObject("WScript.Shell")
+        Set objFSO = CreateObject("Scripting.FileSystemObject")
+        
+        ' Get user's AppData path
+        strAppData = objShell.ExpandEnvironmentStrings("%APPDATA%")
+        strClaudeDir = strAppData & "\Claude"
+        strConfigFile = strClaudeDir & "\claude_desktop_config.json"
+        
+        If objFSO.FileExists(strConfigFile) Then
+            Set objFile = objFSO.OpenTextFile(strConfigFile, 1)
+            strConfig = objFile.ReadAll()
+            objFile.Close()
+            
+            ' Remove Spotify MCP Server configuration
+            ' Simple removal - find and remove the spotify section
+            Dim startPos, endPos
+            startPos = InStr(strConfig, """spotify"":")
+            If startPos > 0 Then
+                ' Find the end of this server configuration
+                endPos = InStr(startPos, strConfig, "}")
+                If endPos > 0 Then
+                    endPos = endPos + 1
+                    ' Also remove trailing comma if present
+                    If Mid(strConfig, endPos, 1) = "," Then
+                        endPos = endPos + 1
+                    End If
+                    ' Remove the configuration
+                    strConfig = Left(strConfig, startPos - 1) & Mid(strConfig, endPos + 1)
+                    
+                    ' Write updated configuration
+                    Set objFile = objFSO.CreateTextFile(strConfigFile, True)
+                    objFile.Write(strConfig)
+                    objFile.Close()
+                End If
+            End If
+        End If
+      ]]>
+    </CustomAction>
+  </Fragment>
+</Wix>

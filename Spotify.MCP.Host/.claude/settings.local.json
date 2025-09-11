@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:developer.spotify.com)",
+      "Bash(dotnet build)",
+      "Bash(dotnet add package:*)",
+      "Bash(dotnet restore --verbosity minimal)",
+      "Read(//c/Users/matt/.nuget/packages/modelcontextprotocol/0.3.0-preview.4/**)",
+      "Bash(dotnet build:*)",
+      "WebSearch",
+      "WebFetch(domain:devblogs.microsoft.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(dotnet clean:*)",
+      "Read(//c/Users/matt/source/repos/Spotify.MCP/**)",
+      "Bash(dotnet run:*)",
+      "Bash(powershell:*)",
+      "Bash(\"C:\\Users\\matt\\SpotifyMCP\\Spotify.MCP.Host.exe\" --help)",
+      "Bash(dir:*)",
+      "Bash(\"C:\\Users\\matt\\SpotifyMCP\\Spotify.MCP.Host.exe\")",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(tasklist)",
+      "Bash(\"Spotify.MCP.Host.exe\")",
+      "Bash(./Spotify.MCP.Host.exe)",
+      "Bash(python:*)",
+      "Bash(cmd /c:*)",
+      "Bash(timeout:*)",
+      "Bash(taskkill:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

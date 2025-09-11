@@ -1,0 +1,9 @@
+namespace Spotify.MCP.Host.Models;
+
+public record SearchResponse(
+    SearchTracks? Tracks,
+    SearchAlbums? Albums,
+    SearchArtists? Artists,
+    SearchPlaylists? Playlists,
+    SearchAudiobooks? Audiobooks
+);
