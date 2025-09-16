@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
+using Spotify.MCP.Host.Models.Input;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;

@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Spotify.MCP.Host.Models;
+namespace Spotify.MCP.Host.Models.Output;
 
 public record Audiobook(
     string Id,

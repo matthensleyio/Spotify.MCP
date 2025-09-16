@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
+using Spotify.MCP.Host.Models.Input;
 
 namespace Spotify.MCP.Host.Services;
 

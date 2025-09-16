@@ -1,4 +1,6 @@
-namespace Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
+
+namespace Spotify.MCP.Host.Models.Input;
 
 public record SearchAudiobooks(
     string Href,

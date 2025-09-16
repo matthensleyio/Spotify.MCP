@@ -1,4 +1,4 @@
-namespace Spotify.MCP.Host.Models;
+namespace Spotify.MCP.Host.Models.Input;
 
 public record SearchResponse(
     SearchTracks? Tracks,

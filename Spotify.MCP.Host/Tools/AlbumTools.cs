@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -28,7 +28,9 @@ public class AlbumTools
         {
             var album = await _spotifyApi.GetAlbumAsync(albumId, accessToken);
             if (album == null)
+            {
                 return $"Album with ID '{albumId}' not found.";
+            }
 
             return JsonSerializer.Serialize(album, new JsonSerializerOptions { WriteIndented = true });
         }

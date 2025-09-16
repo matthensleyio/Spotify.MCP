@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Spotify.MCP.Host.Models;
+namespace Spotify.MCP.Host.Models.Output;
 
 public record ResumePoint(
     [property: JsonPropertyName("fully_played")] bool FullyPlayed,
