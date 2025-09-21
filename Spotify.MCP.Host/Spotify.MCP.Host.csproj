@@ -38,6 +38,7 @@
     <None Update="Assets\spotify-icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
