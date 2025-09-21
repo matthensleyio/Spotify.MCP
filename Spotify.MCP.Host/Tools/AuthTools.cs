@@ -18,7 +18,8 @@ public class AuthTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Generate a Spotify authorization URL for OAuth flow")]
+    [McpServerTool(Name = "get_auth_url", Title = "Get Auth URL")]
+    [Description("Generate a Spotify authorization URL for OAuth flow")]
     public async Task<string> GetAuthorizationUrlAsync(
         [Description("Spotify client ID")] string clientId,
         [Description("Redirect URI registered in your Spotify app")] string redirectUri,
@@ -27,13 +28,19 @@ public class AuthTools
         try
         {
             if (string.IsNullOrWhiteSpace(clientId))
+            {
                 return "Client ID is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(redirectUri))
+            {
                 return "Redirect URI is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(scopes))
+            {
                 return "At least one scope is required.";
+            }
 
             var scopeArray = scopes.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                   .Select(s => s.Trim())
@@ -49,7 +56,8 @@ public class AuthTools
         }
     }
 
-    [McpServerTool, Description("Exchange authorization code for access tokens")]
+    [McpServerTool(Name = "exchange_auth_code", Title = "Exchange Auth Code")]
+    [Description("Exchange authorization code for access tokens")]
     public async Task<string> ExchangeAuthorizationCodeAsync(
         [Description("Authorization code received from the callback")] string code,
         [Description("Redirect URI used in the authorization request")] string redirectUri,
@@ -59,16 +67,24 @@ public class AuthTools
         try
         {
             if (string.IsNullOrWhiteSpace(code))
+            {
                 return "Authorization code is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(redirectUri))
+            {
                 return "Redirect URI is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(clientId))
+            {
                 return "Client ID is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(clientSecret))
+            {
                 return "Client secret is required.";
+            }
 
             var tokenResponse = await _authService.ExchangeAuthorizationCodeAsync(code, redirectUri, clientId, clientSecret);
             return JsonSerializer.Serialize(tokenResponse, new JsonSerializerOptions { WriteIndented = true });
@@ -80,7 +96,8 @@ public class AuthTools
         }
     }
 
-    [McpServerTool, Description("Refresh an expired access token using refresh token")]
+    [McpServerTool(Name = "refresh_token", Title = "Refresh Token")]
+    [Description("Refresh an expired access token using refresh token")]
     public async Task<string> RefreshAccessTokenAsync(
         [Description("Refresh token obtained during initial authorization")] string refreshToken,
         [Description("Spotify client ID")] string clientId,
@@ -89,13 +106,19 @@ public class AuthTools
         try
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
+            {
                 return "Refresh token is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(clientId))
+            {
                 return "Client ID is required.";
+            }
 
             if (string.IsNullOrWhiteSpace(clientSecret))
+            {
                 return "Client secret is required.";
+            }
 
             var tokenResponse = await _authService.RefreshTokenAsync(refreshToken, clientId, clientSecret);
             return JsonSerializer.Serialize(tokenResponse, new JsonSerializerOptions { WriteIndented = true });
@@ -107,7 +130,8 @@ public class AuthTools
         }
     }
 
-    [McpServerTool, Description("Get an access token using client credentials flow (for public data only)")]
+    [McpServerTool(Name = "get_client_token", Title = "Get Client Token")]
+    [Description("Get an access token using client credentials flow (for public data only)")]
     public async Task<string> GetClientCredentialsTokenAsync()
     {
         try

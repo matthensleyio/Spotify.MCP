@@ -162,7 +162,7 @@ public class SpotifyApiService : ISpotifyApiService
         response.EnsureSuccessStatusCode();
         
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<SearchResponse>(content, _jsonOptions) ?? new SearchResponse(null, null, null, null, null);
+        return JsonSerializer.Deserialize<SearchResponse>(content, _jsonOptions);
     }
 
     public async Task<User?> GetCurrentUserAsync(string accessToken)
@@ -206,7 +206,9 @@ public class SpotifyApiService : ISpotifyApiService
         
         var response = await _httpClient.SendAsync(request);
         if (response.StatusCode == System.Net.HttpStatusCode.NoContent)
+        {
             return null;
+        }
         
         response.EnsureSuccessStatusCode();
         
@@ -229,8 +231,14 @@ public class SpotifyApiService : ISpotifyApiService
         if (contextUri != null || uris != null)
         {
             var body = new Dictionary<string, object?>();
-            if (contextUri != null) body["context_uri"] = contextUri;
-            if (uris != null) body["uris"] = uris;
+            if (contextUri != null)
+            {
+                body["context_uri"] = contextUri;
+            }
+            if (uris != null)
+            {
+                body["uris"] = uris;
+            }
             
             var json = JsonSerializer.Serialize(body, _jsonOptions);
             request.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");

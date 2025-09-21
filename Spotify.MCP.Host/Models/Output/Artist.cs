@@ -11,6 +11,6 @@ public record Artist(
     string Type,
     int? Popularity,
     List<string>? Genres,
-    int? Followers,
+    Followers? Followers,
     List<Image>? Images
 );

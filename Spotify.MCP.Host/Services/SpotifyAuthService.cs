@@ -56,7 +56,9 @@ public class SpotifyAuthService : ISpotifyAuthService
         });
 
         if (tokenResponse?.AccessToken == null)
+        {
             throw new InvalidOperationException("Failed to obtain access token");
+        }
 
         _cachedClientCredentialsToken = tokenResponse.AccessToken;
         _tokenExpiry = DateTime.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 60); // Refresh 1 minute early

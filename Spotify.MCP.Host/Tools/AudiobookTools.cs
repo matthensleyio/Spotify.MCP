@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -19,7 +20,8 @@ public class AudiobookTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get details about a specific audiobook by its Spotify ID")]
+    [McpServerTool(Name = "get_audiobook", Title = "Get Audiobook")]
+    [Description("Get details about a specific audiobook by its Spotify ID")]
     public async Task<string> GetAudiobookAsync(
         [Description("Spotify audiobook ID")] string audiobookId,
         [Description("Market/country code (e.g., 'US', 'GB', 'CA')")] string market = "US",
@@ -29,18 +31,21 @@ public class AudiobookTools
         {
             var audiobook = await _spotifyApi.GetAudiobookAsync(audiobookId, market, accessToken);
             if (audiobook == null)
-                return $"Audiobook with ID '{audiobookId}' not found in market '{market}'.";
+            {
+                return $"Error retrieving audiobook: Audiobook with ID '{audiobookId}' not found in market '{market}'.";
+            }
 
             return JsonSerializer.Serialize(audiobook, new JsonSerializerOptions { WriteIndented = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audiobook {AudiobookId}", audiobookId);
-            return $"Error retrieving audiobook: {ex.Message}";
+            return $"Error retrieving audiobook <{audiobookId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get details about multiple audiobooks by their Spotify IDs")]
+    [McpServerTool(Name = "get_audiobooks", Title = "Get Audiobooks")]
+    [Description("Get details about multiple audiobooks by their Spotify IDs")]
     public async Task<string> GetAudiobooksAsync(
         [Description("Comma-separated list of Spotify audiobook IDs")] string audiobookIds,
         [Description("Market/country code (e.g., 'US', 'GB', 'CA')")] string market = "US",
@@ -53,10 +58,14 @@ public class AudiobookTools
                                   .ToArray();
 
             if (ids.Length == 0)
+            {
                 return "No audiobook IDs provided.";
+            }
 
             if (ids.Length > 50)
+            {
                 return "Maximum of 50 audiobook IDs allowed per request.";
+            }
 
             var audiobooks = await _spotifyApi.GetAudiobooksAsync(ids, market, accessToken);
             return JsonSerializer.Serialize(audiobooks, new JsonSerializerOptions { WriteIndented = true });
@@ -64,11 +73,12 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audiobooks {AudiobookIds}", audiobookIds);
-            return $"Error retrieving audiobooks: {ex.Message}";
+            return $"Error retrieving audiobooks <{audiobookIds}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get all chapters from a specific audiobook")]
+    [McpServerTool(Name = "get_audiobook_chapters", Title = "Get Audiobook Chapters")]
+    [Description("Get all chapters from a specific audiobook")]
     public async Task<string> GetAudiobookChaptersAsync(
         [Description("Spotify audiobook ID")] string audiobookId,
         [Description("Market/country code (e.g., 'US', 'GB', 'CA')")] string market = "US",
@@ -79,10 +89,14 @@ public class AudiobookTools
         try
         {
             if (limit < 1 || limit > 50)
+            {
                 return "Limit must be between 1 and 50.";
+            }
 
             if (offset < 0)
+            {
                 return "Offset must be non-negative.";
+            }
 
             var chapters = await _spotifyApi.GetAudiobookChaptersAsync(audiobookId, market, limit, offset, accessToken);
             return JsonSerializer.Serialize(chapters, new JsonSerializerOptions { WriteIndented = true });
@@ -90,11 +104,12 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting chapters for audiobook {AudiobookId}", audiobookId);
-            return $"Error retrieving audiobook chapters: {ex.Message}";
+            return $"Error retrieving audiobook chapters <{audiobookId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get the current user's saved audiobooks (requires user access token)")]
+    [McpServerTool(Name = "get_saved_audiobooks", Title = "Get Saved Audiobooks")]
+    [Description("Get the current user's saved audiobooks (requires user access token)")]
     public async Task<string> GetUserSavedAudiobooksAsync(
         [Description("User access token with user-library-read scope")] string accessToken,
         [Description("Maximum number of audiobooks to return (1-50)")] int limit = 20,
@@ -103,13 +118,19 @@ public class AudiobookTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             if (limit < 1 || limit > 50)
+            {
                 return "Limit must be between 1 and 50.";
+            }
 
             if (offset < 0)
+            {
                 return "Offset must be non-negative.";
+            }
 
             var audiobooks = await _spotifyApi.GetUserSavedAudiobooksAsync(accessToken, limit, offset);
             return JsonSerializer.Serialize(audiobooks, new JsonSerializerOptions { WriteIndented = true });
@@ -117,11 +138,12 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting user saved audiobooks");
-            return $"Error retrieving user saved audiobooks: {ex.Message}";
+            return $"Error retrieving user's saved audiobooks: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Save audiobooks to the current user's library (requires user access token)")]
+    [McpServerTool(Name = "save_audiobooks", Title = "Save Audiobooks")]
+    [Description("Save audiobooks to the current user's library (requires user access token)")]
     public async Task<string> SaveAudiobooksForUserAsync(
         [Description("User access token with user-library-modify scope")] string accessToken,
         [Description("Comma-separated list of Spotify audiobook IDs to save")] string audiobookIds)
@@ -129,17 +151,23 @@ public class AudiobookTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                   .Select(id => id.Trim())
                                   .ToArray();
 
             if (ids.Length == 0)
+            {
                 return "No audiobook IDs provided.";
+            }
 
             if (ids.Length > 50)
+            {
                 return "Maximum of 50 audiobook IDs allowed per request.";
+            }
 
             await _spotifyApi.SaveAudiobooksForUserAsync(accessToken, ids);
             return $"Successfully saved {ids.Length} audiobook(s) to user's library.";
@@ -147,11 +175,12 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving audiobooks for user");
-            return $"Error saving audiobooks: {ex.Message}";
+            return $"Error saving audiobooks <{audiobookIds}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Remove audiobooks from the current user's library (requires user access token)")]
+    [McpServerTool(Name = "remove_saved_audiobooks", Title = "Remove Saved Audiobooks")]
+    [Description("Remove audiobooks from the current user's library (requires user access token)")]
     public async Task<string> RemoveUserSavedAudiobooksAsync(
         [Description("User access token with user-library-modify scope")] string accessToken,
         [Description("Comma-separated list of Spotify audiobook IDs to remove")] string audiobookIds)
@@ -159,17 +188,23 @@ public class AudiobookTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                   .Select(id => id.Trim())
                                   .ToArray();
 
             if (ids.Length == 0)
+            {
                 return "No audiobook IDs provided.";
+            }
 
             if (ids.Length > 50)
+            {
                 return "Maximum of 50 audiobook IDs allowed per request.";
+            }
 
             await _spotifyApi.RemoveUserSavedAudiobooksAsync(accessToken, ids);
             return $"Successfully removed {ids.Length} audiobook(s) from user's library.";
@@ -177,11 +212,12 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing audiobooks from user library");
-            return $"Error removing audiobooks: {ex.Message}";
+            return $"Error removing audiobooks <{audiobookIds}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Check if audiobooks are saved in the current user's library (requires user access token)")]
+    [McpServerTool(Name = "check_saved_audiobooks", Title = "Check Saved Audiobooks")]
+    [Description("Check if audiobooks are saved in the current user's library (requires user access token)")]
     public async Task<string> CheckUserSavedAudiobooksAsync(
         [Description("User access token with user-library-read scope")] string accessToken,
         [Description("Comma-separated list of Spotify audiobook IDs to check")] string audiobookIds)
@@ -189,17 +225,23 @@ public class AudiobookTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                                   .Select(id => id.Trim())
                                   .ToArray();
 
             if (ids.Length == 0)
+            {
                 return "No audiobook IDs provided.";
+            }
 
             if (ids.Length > 50)
+            {
                 return "Maximum of 50 audiobook IDs allowed per request.";
+            }
 
             var results = await _spotifyApi.CheckUserSavedAudiobooksAsync(accessToken, ids);
             
@@ -209,7 +251,7 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking user saved audiobooks");
-            return $"Error checking saved audiobooks: {ex.Message}";
+            return $"Error checking saved audiobooks <{audiobookIds}>: {ex.Message}";
         }
     }
 }

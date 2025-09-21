@@ -19,7 +19,8 @@ public class PlaylistTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get details about a specific playlist by its Spotify ID")]
+    [McpServerTool(Name = "get_playlist", Title = "Get Playlist")]
+    [Description("Get details about a specific playlist by its Spotify ID")]
     public async Task<string> GetPlaylistAsync(
         [Description("Spotify playlist ID")] string playlistId,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
@@ -28,25 +29,30 @@ public class PlaylistTools
         {
             var playlist = await _spotifyApi.GetPlaylistAsync(playlistId, accessToken);
             if (playlist == null)
-                return $"Playlist with ID '{playlistId}' not found.";
+            {
+                return $"Error retrieving playlist: Playlist with ID '{playlistId}' not found.";
+            }
 
             return JsonSerializer.Serialize(playlist, new JsonSerializerOptions { WriteIndented = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting playlist {PlaylistId}", playlistId);
-            return $"Error retrieving playlist: {ex.Message}";
+            return $"Error retrieving playlist <{playlistId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get all playlists for the current user (requires user access token)")]
+    [McpServerTool(Name = "get_user_playlists", Title = "Get User Playlists")]
+    [Description("Get all playlists for the current user (requires user access token)")]
     public async Task<string> GetUserPlaylistsAsync(
         [Description("User access token with playlist-read-private and playlist-read-collaborative scopes")] string accessToken)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             var playlists = await _spotifyApi.GetUserPlaylistsAsync(accessToken);
             return JsonSerializer.Serialize(playlists, new JsonSerializerOptions { WriteIndented = true });

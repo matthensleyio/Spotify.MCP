@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -19,7 +20,8 @@ public class ArtistTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get details about a specific artist by their Spotify ID")]
+    [McpServerTool(Name = "get_artist", Title = "Get Artist")]
+    [Description("Get details about a specific artist by their Spotify ID")]
     public async Task<string> GetArtistAsync(
         [Description("Spotify artist ID")] string artistId,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
@@ -28,18 +30,21 @@ public class ArtistTools
         {
             var artist = await _spotifyApi.GetArtistAsync(artistId, accessToken);
             if (artist == null)
-                return $"Artist with ID '{artistId}' not found.";
+            {
+                return $"Error retrieving artist: Artist with ID '{artistId}' not found.";
+            }
 
             return JsonSerializer.Serialize(artist, new JsonSerializerOptions { WriteIndented = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting artist {ArtistId}", artistId);
-            return $"Error retrieving artist: {ex.Message}";
+            return $"Error retrieving artist <{artistId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get all albums by a specific artist")]
+    [McpServerTool(Name = "get_artist_albums", Title = "Get Artist Albums")]
+    [Description("Get all albums by a specific artist")]
     public async Task<string> GetArtistAlbumsAsync(
         [Description("Spotify artist ID")] string artistId,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
@@ -52,11 +57,12 @@ public class ArtistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting albums for artist {ArtistId}", artistId);
-            return $"Error retrieving artist albums: {ex.Message}";
+            return $"Error retrieving artist albums <{artistId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get the top tracks for a specific artist")]
+    [McpServerTool(Name = "get_artist_top_tracks", Title = "Get Artist Top Tracks")]
+    [Description("Get the top tracks for a specific artist")]
     public async Task<string> GetArtistTopTracksAsync(
         [Description("Spotify artist ID")] string artistId,
         [Description("Market/country code (e.g., 'US', 'GB', 'DE')")] string market = "US",
@@ -70,7 +76,7 @@ public class ArtistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting top tracks for artist {ArtistId}", artistId);
-            return $"Error retrieving artist top tracks: {ex.Message}";
+            return $"Error retrieving artist top tracks <{artistId}>: {ex.Message}";
         }
     }
 }

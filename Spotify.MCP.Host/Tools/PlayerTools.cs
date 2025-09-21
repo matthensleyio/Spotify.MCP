@@ -19,7 +19,8 @@ public class PlayerTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get the current playback state for the user")]
+    [McpServerTool(Name = "get_playback", Title = "Get Playback")]
+    [Description("Get the current playback state for the user")]
     public async Task<string> GetCurrentPlaybackAsync(
         [Description("User access token with user-read-playback-state scope")] string accessToken)
     {
@@ -41,7 +42,8 @@ public class PlayerTools
         }
     }
 
-    [McpServerTool, Description("Pause the user's current playback")]
+    [McpServerTool(Name = "pause_playback", Title = "Pause Playback")]
+    [Description("Pause the user's current playback")]
     public async Task<string> PausePlaybackAsync(
         [Description("User access token with user-modify-playback-state scope")] string accessToken)
     {
@@ -60,7 +62,8 @@ public class PlayerTools
         }
     }
 
-    [McpServerTool, Description("Start or resume the user's playback")]
+    [McpServerTool(Name = "start_playback", Title = "Start Playback")]
+    [Description("Start or resume the user's playback")]
     public async Task<string> StartPlaybackAsync(
         [Description("User access token with user-modify-playback-state scope")] string accessToken,
         [Description("Optional context URI (album, artist, or playlist URI)")] string? contextUri = null,
@@ -89,7 +92,8 @@ public class PlayerTools
         }
     }
 
-    [McpServerTool, Description("Skip to the next track in the user's queue")]
+    [McpServerTool(Name = "skip_next", Title = "Skip Next")]
+    [Description("Skip to the next track in the user's queue")]
     public async Task<string> SkipToNextAsync(
         [Description("User access token with user-modify-playback-state scope")] string accessToken)
     {
@@ -108,7 +112,8 @@ public class PlayerTools
         }
     }
 
-    [McpServerTool, Description("Skip to the previous track in the user's queue")]
+    [McpServerTool(Name = "skip_previous", Title = "Skip Previous")]
+    [Description("Skip to the previous track in the user's queue")]
     public async Task<string> SkipToPreviousAsync(
         [Description("User access token with user-modify-playback-state scope")] string accessToken)
     {

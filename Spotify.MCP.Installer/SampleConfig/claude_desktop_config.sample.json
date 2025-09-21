@@ -1,7 +1,0 @@
-{
-  "mcpServers": {
-    "spotify": {
-      "command": "C:\\Program Files\\Spotify MCP Server\\Spotify.MCP.Host.exe"
-    }
-  }
-}

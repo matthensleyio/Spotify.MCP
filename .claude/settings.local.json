@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build)",
+      "Bash(dotnet test)",
+      "Bash(dotnet test:*)",
+      "Read(//c/Users/matt/OneDrive/AI Tools/docs/**)",
+      "Bash(dotnet build:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -19,7 +19,8 @@ public class AlbumTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get details about a specific album by its Spotify ID")]
+    [McpServerTool(Name = "get_album", Title = "Get Album")]
+    [Description("Get details about a specific album by its Spotify ID")]
     public async Task<string> GetAlbumAsync(
         [Description("Spotify album ID")] string albumId,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
@@ -29,7 +30,7 @@ public class AlbumTools
             var album = await _spotifyApi.GetAlbumAsync(albumId, accessToken);
             if (album == null)
             {
-                return $"Album with ID '{albumId}' not found.";
+                return $"Error retrieving album: Album with ID '{albumId}' not found.";
             }
 
             return JsonSerializer.Serialize(album, new JsonSerializerOptions { WriteIndented = true });
@@ -37,11 +38,12 @@ public class AlbumTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting album {AlbumId}", albumId);
-            return $"Error retrieving album: {ex.Message}";
+            return $"Error retrieving album <{albumId}>: {ex.Message}";
         }
     }
 
-    [McpServerTool, Description("Get all tracks from a specific album")]
+    [McpServerTool(Name = "get_album_tracks", Title = "Get Album Tracks")]
+    [Description("Get all tracks from a specific album")]
     public async Task<string> GetAlbumTracksAsync(
         [Description("Spotify album ID")] string albumId,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
@@ -54,7 +56,7 @@ public class AlbumTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting tracks for album {AlbumId}", albumId);
-            return $"Error retrieving album tracks: {ex.Message}";
+            return $"Error retrieving album tracks <{albumId}>: {ex.Message}";
         }
     }
 }

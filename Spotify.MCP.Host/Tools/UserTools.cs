@@ -19,18 +19,23 @@ public class UserTools
         _logger = logger;
     }
 
-    [McpServerTool, Description("Get the current user's profile information")]
+    [McpServerTool(Name = "get_current_user", Title = "Get Current User")]
+    [Description("Get the current user's profile information")]
     public async Task<string> GetCurrentUserAsync(
         [Description("User access token with user-read-private and user-read-email scopes")] string accessToken)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
+            {
                 return "User access token is required for this operation.";
+            }
 
             var user = await _spotifyApi.GetCurrentUserAsync(accessToken);
             if (user == null)
+            {
                 return "Unable to retrieve user profile.";
+            }
 
             return JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
         }
