@@ -7,10 +7,10 @@ A Model Context Protocol (MCP) server that provides tools to interact with the S
 This MCP server provides tools for:
 
 ### Authentication
-- `get_authorization_url` - Generate authorization URLs for OAuth flow
-- `exchange_authorization_code` - Exchange authorization codes for access tokens
-- `refresh_access_token` - Refresh expired access tokens
-- `get_client_credentials_token` - Get access tokens for public data
+- `get_auth_url` - Generate authorization URLs for OAuth flow
+- `exchange_auth_code` - Exchange authorization codes for access tokens
+- `refresh_token` - Refresh expired access tokens
+- `get_client_token` - Get access tokens for public data
 
 ### Track Management
 - `get_track` - Get details about a specific track
@@ -31,10 +31,10 @@ This MCP server provides tools for:
 - `get_audiobook` - Get details about an audiobook
 - `get_audiobooks` - Get details about multiple audiobooks
 - `get_audiobook_chapters` - Get chapters from an audiobook
-- `get_user_saved_audiobooks` - Get user's saved audiobooks (requires user token)
-- `save_audiobooks_for_user` - Save audiobooks to user's library (requires user token)
-- `remove_user_saved_audiobooks` - Remove audiobooks from user's library (requires user token)
-- `check_user_saved_audiobooks` - Check if audiobooks are in user's library (requires user token)
+- `get_saved_audiobooks` - Get user's saved audiobooks (requires user token)
+- `save_audiobooks` - Save audiobooks to user's library (requires user token)
+- `remove_saved_audiobooks` - Remove audiobooks from user's library (requires user token)
+- `check_saved_audiobooks` - Check if audiobooks are in user's library (requires user token)
 
 ### Playlist Management
 - `get_playlist` - Get details about a playlist
@@ -49,11 +49,11 @@ This MCP server provides tools for:
 - `search_audiobooks` - Search specifically for audiobooks
 
 ### Player Control (requires user authentication)
-- `get_current_playback` - Get current playback state
+- `get_playback` - Get current playback state
 - `pause_playback` - Pause playback
 - `start_playback` - Start/resume playback
-- `skip_to_next` - Skip to next track
-- `skip_to_previous` - Skip to previous track
+- `skip_next` - Skip to next track
+- `skip_previous` - Skip to previous track
 
 ### User Profile
 - `get_current_user` - Get current user's profile
@@ -120,7 +120,7 @@ If you prefer to use the compiled executable:
 {
   "mcpServers": {
     "spotify": {
-      "command": "C:\\path\\to\\your\\Spotify.MCP.Host\\bin\\Debug\\net9.0\\Spotify.MCP.Host.exe",
+      "command": "C:\\path\\to\\your\\Spotify.MCP.Host.exe",
       "args": [
         "--spotify-client-id", "your_spotify_client_id_here",
         "--spotify-client-secret", "your_spotify_client_secret_here"
@@ -158,11 +158,11 @@ Some endpoints require user authentication and appropriate scopes:
 - User profile information
 
 ### Authentication Flow
-1. Use `get_authorization_url` to generate an authorization URL
+1. Use `get_auth_url` to generate an authorization URL
 2. User visits the URL and authorizes your app
-3. Use `exchange_authorization_code` to get access and refresh tokens
+3. Use `exchange_auth_code` to get access and refresh tokens
 4. Use the access token for user-specific API calls
-5. Use `refresh_access_token` when the access token expires
+5. Use `refresh_token` when the access token expires
 
 ## Required Scopes
 
