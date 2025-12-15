@@ -75,8 +75,9 @@ public class TrackToolsTests
         var result = await trackTools.GetTrackAsync(invalidTrackId);
 
         // Assert
-        Assert.StartsWith("Error retrieving track", result);
-        Assert.Contains("Bad Request", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -86,14 +87,15 @@ public class TrackToolsTests
         // Arrange
         var trackTools = _serviceProvider.GetRequiredService<TrackTools>();
         // This ID is syntactically valid but highly unlikely to exist
-        var nonExistentTrackId = "0000000000000000000000"; 
+        var nonExistentTrackId = "0000000000000000000000";
 
         // Act
         var result = await trackTools.GetTrackAsync(nonExistentTrackId);
 
         // Assert
-        Assert.StartsWith("Error retrieving track", result);
-        Assert.Contains(nonExistentTrackId, result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -108,7 +110,9 @@ public class TrackToolsTests
         var result = await trackTools.GetTrackAsync(emptyTrackId);
 
         // Assert
-        Assert.StartsWith("Error retrieving track", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -123,6 +127,8 @@ public class TrackToolsTests
         var result = await trackTools.GetTrackAsync(nullTrackId!);
 
         // Assert
-        Assert.StartsWith("Error retrieving track", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

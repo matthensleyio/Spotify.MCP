@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -27,18 +28,22 @@ public class PlayerTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return "User access token is required for this operation.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
+            }
 
             var playbackState = await _spotifyApi.GetCurrentPlaybackAsync(accessToken);
             if (playbackState == null)
-                return "No active playback session found.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No active playback session found.", "NO_PLAYBACK_SESSION"));
+            }
 
             return JsonSerializer.Serialize(playbackState, new JsonSerializerOptions { WriteIndented = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting current playback");
-            return $"Error retrieving current playback: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_PLAYBACK_ERROR"));
         }
     }
 
@@ -50,15 +55,17 @@ public class PlayerTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return "User access token is required for this operation.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
+            }
 
             await _spotifyApi.PausePlaybackAsync(accessToken);
-            return "Playback paused successfully.";
+            return JsonSerializer.Serialize(new { success = true, message = "Playback paused successfully." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error pausing playback");
-            return $"Error pausing playback: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "PAUSE_PLAYBACK_ERROR"));
         }
     }
 
@@ -72,7 +79,9 @@ public class PlayerTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return "User access token is required for this operation.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
+            }
 
             string[]? uriArray = null;
             if (!string.IsNullOrWhiteSpace(uris))
@@ -83,12 +92,12 @@ public class PlayerTools
             }
 
             await _spotifyApi.StartPlaybackAsync(accessToken, contextUri, uriArray);
-            return "Playback started successfully.";
+            return JsonSerializer.Serialize(new { success = true, message = "Playback started successfully." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error starting playback");
-            return $"Error starting playback: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "START_PLAYBACK_ERROR"));
         }
     }
 
@@ -100,15 +109,17 @@ public class PlayerTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return "User access token is required for this operation.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
+            }
 
             await _spotifyApi.SkipToNextAsync(accessToken);
-            return "Skipped to next track successfully.";
+            return JsonSerializer.Serialize(new { success = true, message = "Skipped to next track successfully." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error skipping to next track");
-            return $"Error skipping to next track: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SKIP_NEXT_ERROR"));
         }
     }
 
@@ -120,15 +131,17 @@ public class PlayerTools
         try
         {
             if (string.IsNullOrWhiteSpace(accessToken))
-                return "User access token is required for this operation.";
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
+            }
 
             await _spotifyApi.SkipToPreviousAsync(accessToken);
-            return "Skipped to previous track successfully.";
+            return JsonSerializer.Serialize(new { success = true, message = "Skipped to previous track successfully." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error skipping to previous track");
-            return $"Error skipping to previous track: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SKIP_PREVIOUS_ERROR"));
         }
     }
 }

@@ -31,7 +31,7 @@ public class ArtistTools
             var artist = await _spotifyApi.GetArtistAsync(artistId, accessToken);
             if (artist == null)
             {
-                return $"Error retrieving artist: Artist with ID '{artistId}' not found.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Artist with ID '{artistId}' not found.", "ARTIST_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(artist, new JsonSerializerOptions { WriteIndented = true });
@@ -39,7 +39,7 @@ public class ArtistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting artist {ArtistId}", artistId);
-            return $"Error retrieving artist <{artistId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_ARTIST_ERROR"));
         }
     }
 
@@ -57,7 +57,7 @@ public class ArtistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting albums for artist {ArtistId}", artistId);
-            return $"Error retrieving artist albums <{artistId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_ARTIST_ALBUMS_ERROR"));
         }
     }
 
@@ -76,7 +76,7 @@ public class ArtistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting top tracks for artist {ArtistId}", artistId);
-            return $"Error retrieving artist top tracks <{artistId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_ARTIST_TOP_TRACKS_ERROR"));
         }
     }
 }

@@ -30,7 +30,7 @@ public class AlbumTools
             var album = await _spotifyApi.GetAlbumAsync(albumId, accessToken);
             if (album == null)
             {
-                return $"Error retrieving album: Album with ID '{albumId}' not found.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Album with ID '{albumId}' not found.", "ALBUM_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(album, new JsonSerializerOptions { WriteIndented = true });
@@ -38,7 +38,7 @@ public class AlbumTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting album {AlbumId}", albumId);
-            return $"Error retrieving album <{albumId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_ALBUM_ERROR"));
         }
     }
 
@@ -56,7 +56,7 @@ public class AlbumTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting tracks for album {AlbumId}", albumId);
-            return $"Error retrieving album tracks <{albumId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_ALBUM_TRACKS_ERROR"));
         }
     }
 }

@@ -80,8 +80,9 @@ public class AlbumToolsTests
         var result = await albumTools.GetAlbumAsync(invalidAlbumId);
 
         // Assert
-        Assert.StartsWith("Error retrieving album", result);
-        Assert.Contains("Bad Request", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -91,14 +92,15 @@ public class AlbumToolsTests
         // Arrange
         var albumTools = _serviceProvider.GetRequiredService<AlbumTools>();
         // This ID is syntactically valid but highly unlikely to exist
-        var nonExistentAlbumId = "0000000000000000000000"; 
+        var nonExistentAlbumId = "0000000000000000000000";
 
         // Act
         var result = await albumTools.GetAlbumAsync(nonExistentAlbumId);
 
         // Assert
-        Assert.StartsWith("Error retrieving album", result);
-        Assert.Contains(nonExistentAlbumId, result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -113,7 +115,9 @@ public class AlbumToolsTests
         var result = await albumTools.GetAlbumAsync(emptyAlbumId);
 
         // Assert
-        Assert.StartsWith("Error retrieving album", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -128,6 +132,8 @@ public class AlbumToolsTests
         var result = await albumTools.GetAlbumAsync(nullAlbumId!);
 
         // Assert
-        Assert.StartsWith("Error retrieving album", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

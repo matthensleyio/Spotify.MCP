@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -29,17 +30,17 @@ public class AuthTools
         {
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                return "Client ID is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Client ID is required."));
             }
 
             if (string.IsNullOrWhiteSpace(redirectUri))
             {
-                return "Redirect URI is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Redirect URI is required."));
             }
 
             if (string.IsNullOrWhiteSpace(scopes))
             {
-                return "At least one scope is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("At least one scope is required."));
             }
 
             var scopeArray = scopes.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -47,12 +48,12 @@ public class AuthTools
                                   .ToArray();
 
             var authUrl = await _authService.GetAuthorizationUrlAsync(clientId, redirectUri, scopeArray);
-            return $"Authorization URL: {authUrl}";
+            return JsonSerializer.Serialize(new { auth_url = authUrl });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating authorization URL");
-            return $"Error generating authorization URL: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "AUTH_URL_ERROR"));
         }
     }
 
@@ -68,22 +69,22 @@ public class AuthTools
         {
             if (string.IsNullOrWhiteSpace(code))
             {
-                return "Authorization code is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Authorization code is required."));
             }
 
             if (string.IsNullOrWhiteSpace(redirectUri))
             {
-                return "Redirect URI is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Redirect URI is required."));
             }
 
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                return "Client ID is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Client ID is required."));
             }
 
             if (string.IsNullOrWhiteSpace(clientSecret))
             {
-                return "Client secret is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Client secret is required."));
             }
 
             var tokenResponse = await _authService.ExchangeAuthorizationCodeAsync(code, redirectUri, clientId, clientSecret);
@@ -92,7 +93,7 @@ public class AuthTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error exchanging authorization code");
-            return $"Error exchanging authorization code: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "EXCHANGE_AUTH_ERROR"));
         }
     }
 
@@ -107,17 +108,17 @@ public class AuthTools
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                return "Refresh token is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Refresh token is required."));
             }
 
             if (string.IsNullOrWhiteSpace(clientId))
             {
-                return "Client ID is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Client ID is required."));
             }
 
             if (string.IsNullOrWhiteSpace(clientSecret))
             {
-                return "Client secret is required.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Client secret is required."));
             }
 
             var tokenResponse = await _authService.RefreshTokenAsync(refreshToken, clientId, clientSecret);
@@ -126,7 +127,7 @@ public class AuthTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error refreshing access token");
-            return $"Error refreshing access token: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "REFRESH_TOKEN_ERROR"));
         }
     }
 
@@ -137,12 +138,12 @@ public class AuthTools
         try
         {
             var accessToken = await _authService.GetClientCredentialsTokenAsync();
-            return $"Access Token: {accessToken}";
+            return JsonSerializer.Serialize(new { access_token = accessToken, token_type = "Bearer" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting client credentials token");
-            return $"Error getting client credentials token: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "CLIENT_TOKEN_ERROR"));
         }
     }
 }

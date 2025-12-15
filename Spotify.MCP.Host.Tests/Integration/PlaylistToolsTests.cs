@@ -79,8 +79,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetPlaylistAsync(invalidPlaylistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving playlist", result);
-        Assert.Contains("Bad Request", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -95,8 +96,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetPlaylistAsync(nonExistentPlaylistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving playlist", result);
-        Assert.Contains(nonExistentPlaylistId, result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -111,7 +113,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetPlaylistAsync(emptyPlaylistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving playlist", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -126,7 +130,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetPlaylistAsync(nullPlaylistId!);
 
         // Assert
-        Assert.StartsWith("Error retrieving playlist", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -144,7 +150,7 @@ public class PlaylistToolsTests
         // Assert
         // Should either return playlist data or an authentication error
         Assert.True(
-            result.Contains("\"id\"") || result.StartsWith("Error retrieving playlist"),
+            result.Contains("\"id\"") || result.Contains("\"error\""),
             $"Expected either playlist data or error message, but got: {result}"
         );
     }
@@ -161,7 +167,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetUserPlaylistsAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -176,7 +184,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetUserPlaylistsAsync(nullAccessToken!);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -191,7 +201,9 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetUserPlaylistsAsync(whitespaceAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -206,6 +218,8 @@ public class PlaylistToolsTests
         var result = await playlistTools.GetUserPlaylistsAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving user playlists:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

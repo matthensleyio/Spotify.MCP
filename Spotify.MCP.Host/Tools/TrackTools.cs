@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using Spotify.MCP.Host.Models;
 using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
@@ -31,7 +30,7 @@ public class TrackTools
             var track = await _spotifyApi.GetTrackAsync(trackId, accessToken);
             if (track == null)
             {
-                return $"Error retrieving track: Track with ID '{trackId}' not found.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Track with ID '{trackId}' not found.", "TRACK_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(track, new JsonSerializerOptions { WriteIndented = true });
@@ -39,7 +38,7 @@ public class TrackTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting track {TrackId}", trackId);
-            return $"Error retrieving track <{trackId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_TRACK_ERROR"));
         }
     }
 
@@ -57,12 +56,12 @@ public class TrackTools
 
             if (ids.Length == 0)
             {
-                return "No track IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No track IDs provided.", "EMPTY_TRACK_IDS"));
             }
 
             if (ids.Length > 50)
             {
-                return "Maximum of 50 track IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 50 track IDs allowed per request.", "TOO_MANY_TRACK_IDS"));
             }
 
             var tracks = await _spotifyApi.GetTracksAsync(ids, accessToken);
@@ -71,7 +70,7 @@ public class TrackTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting tracks {TrackIds}", trackIds);
-            return $"Error retrieving tracks <{trackIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_TRACKS_ERROR"));
         }
     }
 
@@ -86,7 +85,7 @@ public class TrackTools
             var audioFeatures = await _spotifyApi.GetAudioFeaturesAsync(trackId, accessToken);
             if (audioFeatures == null)
             {
-                return $"Error retrieving track: Audio features for track '{trackId}' not found.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Audio features for track '{trackId}' not found.", "AUDIO_FEATURES_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(audioFeatures, new JsonSerializerOptions { WriteIndented = true });
@@ -94,7 +93,7 @@ public class TrackTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audio features for track {TrackId}", trackId);
-            return $"Error retrieving track <{trackId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_AUDIO_FEATURES_ERROR"));
         }
     }
 
@@ -112,12 +111,12 @@ public class TrackTools
 
             if (ids.Length == 0)
             {
-                return "No track IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No track IDs provided.", "EMPTY_TRACK_IDS"));
             }
 
             if (ids.Length > 100)
             {
-                return "Maximum of 100 track IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 100 track IDs allowed per request.", "TOO_MANY_TRACK_IDS"));
             }
 
             var audioFeaturesTasks = ids.Select(id => _spotifyApi.GetAudioFeaturesAsync(id, accessToken));
@@ -129,7 +128,7 @@ public class TrackTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audio features for tracks {TrackIds}", trackIds);
-            return $"Error retrieving track audio features <{trackIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_MULTIPLE_AUDIO_FEATURES_ERROR"));
         }
     }
 }

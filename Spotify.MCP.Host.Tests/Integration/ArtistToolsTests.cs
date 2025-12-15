@@ -76,8 +76,9 @@ public class ArtistToolsTests
         var result = await artistTools.GetArtistAsync(invalidArtistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving artist", result);
-        Assert.Contains("Bad Request", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -87,14 +88,15 @@ public class ArtistToolsTests
         // Arrange
         var artistTools = _serviceProvider.GetRequiredService<ArtistTools>();
         // This ID is syntactically valid but highly unlikely to exist
-        var nonExistentArtistId = "0000000000000000000000"; 
+        var nonExistentArtistId = "0000000000000000000000";
 
         // Act
         var result = await artistTools.GetArtistAsync(nonExistentArtistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving artist", result);
-        Assert.Contains(nonExistentArtistId, result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -109,7 +111,9 @@ public class ArtistToolsTests
         var result = await artistTools.GetArtistAsync(emptyArtistId);
 
         // Assert
-        Assert.StartsWith("Error retrieving artist", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -124,6 +128,8 @@ public class ArtistToolsTests
         var result = await artistTools.GetArtistAsync(nullArtistId!);
 
         // Assert
-        Assert.StartsWith("Error retrieving artist", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

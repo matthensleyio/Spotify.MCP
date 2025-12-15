@@ -32,7 +32,7 @@ public class AudiobookTools
             var audiobook = await _spotifyApi.GetAudiobookAsync(audiobookId, market, accessToken);
             if (audiobook == null)
             {
-                return $"Error retrieving audiobook: Audiobook with ID '{audiobookId}' not found in market '{market}'.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Audiobook with ID '{audiobookId}' not found in market '{market}'.", "AUDIOBOOK_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(audiobook, new JsonSerializerOptions { WriteIndented = true });
@@ -40,7 +40,7 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audiobook {AudiobookId}", audiobookId);
-            return $"Error retrieving audiobook <{audiobookId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_AUDIOBOOK_ERROR"));
         }
     }
 
@@ -59,12 +59,12 @@ public class AudiobookTools
 
             if (ids.Length == 0)
             {
-                return "No audiobook IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No audiobook IDs provided.", "EMPTY_AUDIOBOOK_IDS"));
             }
 
             if (ids.Length > 50)
             {
-                return "Maximum of 50 audiobook IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 50 audiobook IDs allowed per request.", "TOO_MANY_AUDIOBOOK_IDS"));
             }
 
             var audiobooks = await _spotifyApi.GetAudiobooksAsync(ids, market, accessToken);
@@ -73,7 +73,7 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting audiobooks {AudiobookIds}", audiobookIds);
-            return $"Error retrieving audiobooks <{audiobookIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_AUDIOBOOKS_ERROR"));
         }
     }
 
@@ -90,12 +90,12 @@ public class AudiobookTools
         {
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             if (offset < 0)
             {
-                return "Offset must be non-negative.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Offset must be non-negative.", "INVALID_OFFSET"));
             }
 
             var chapters = await _spotifyApi.GetAudiobookChaptersAsync(audiobookId, market, limit, offset, accessToken);
@@ -104,7 +104,7 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting chapters for audiobook {AudiobookId}", audiobookId);
-            return $"Error retrieving audiobook chapters <{audiobookId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_AUDIOBOOK_CHAPTERS_ERROR"));
         }
     }
 
@@ -119,17 +119,17 @@ public class AudiobookTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             if (offset < 0)
             {
-                return "Offset must be non-negative.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Offset must be non-negative.", "INVALID_OFFSET"));
             }
 
             var audiobooks = await _spotifyApi.GetUserSavedAudiobooksAsync(accessToken, limit, offset);
@@ -138,7 +138,7 @@ public class AudiobookTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting user saved audiobooks");
-            return $"Error retrieving user's saved audiobooks: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_SAVED_AUDIOBOOKS_ERROR"));
         }
     }
 
@@ -152,7 +152,7 @@ public class AudiobookTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -161,21 +161,21 @@ public class AudiobookTools
 
             if (ids.Length == 0)
             {
-                return "No audiobook IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No audiobook IDs provided.", "EMPTY_AUDIOBOOK_IDS"));
             }
 
             if (ids.Length > 50)
             {
-                return "Maximum of 50 audiobook IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 50 audiobook IDs allowed per request.", "TOO_MANY_AUDIOBOOK_IDS"));
             }
 
             await _spotifyApi.SaveAudiobooksForUserAsync(accessToken, ids);
-            return $"Successfully saved {ids.Length} audiobook(s) to user's library.";
+            return JsonSerializer.Serialize(new { success = true, message = $"Successfully saved {ids.Length} audiobook(s) to user's library." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving audiobooks for user");
-            return $"Error saving audiobooks <{audiobookIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SAVE_AUDIOBOOKS_ERROR"));
         }
     }
 
@@ -189,7 +189,7 @@ public class AudiobookTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -198,21 +198,21 @@ public class AudiobookTools
 
             if (ids.Length == 0)
             {
-                return "No audiobook IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No audiobook IDs provided.", "EMPTY_AUDIOBOOK_IDS"));
             }
 
             if (ids.Length > 50)
             {
-                return "Maximum of 50 audiobook IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 50 audiobook IDs allowed per request.", "TOO_MANY_AUDIOBOOK_IDS"));
             }
 
             await _spotifyApi.RemoveUserSavedAudiobooksAsync(accessToken, ids);
-            return $"Successfully removed {ids.Length} audiobook(s) from user's library.";
+            return JsonSerializer.Serialize(new { success = true, message = $"Successfully removed {ids.Length} audiobook(s) from user's library." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing audiobooks from user library");
-            return $"Error removing audiobooks <{audiobookIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "REMOVE_AUDIOBOOKS_ERROR"));
         }
     }
 
@@ -226,7 +226,7 @@ public class AudiobookTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             var ids = audiobookIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -235,23 +235,23 @@ public class AudiobookTools
 
             if (ids.Length == 0)
             {
-                return "No audiobook IDs provided.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("No audiobook IDs provided.", "EMPTY_AUDIOBOOK_IDS"));
             }
 
             if (ids.Length > 50)
             {
-                return "Maximum of 50 audiobook IDs allowed per request.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Maximum of 50 audiobook IDs allowed per request.", "TOO_MANY_AUDIOBOOK_IDS"));
             }
 
             var results = await _spotifyApi.CheckUserSavedAudiobooksAsync(accessToken, ids);
-            
+
             var checkResults = ids.Zip(results, (id, saved) => new { AudiobookId = id, IsSaved = saved });
             return JsonSerializer.Serialize(checkResults, new JsonSerializerOptions { WriteIndented = true });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking user saved audiobooks");
-            return $"Error checking saved audiobooks <{audiobookIds}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "CHECK_SAVED_AUDIOBOOKS_ERROR"));
         }
     }
 }

@@ -7,6 +7,7 @@ using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Reflection;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace Spotify.MCP.Host
 {

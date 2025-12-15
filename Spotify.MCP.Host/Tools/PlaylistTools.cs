@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -30,7 +31,7 @@ public class PlaylistTools
             var playlist = await _spotifyApi.GetPlaylistAsync(playlistId, accessToken);
             if (playlist == null)
             {
-                return $"Error retrieving playlist: Playlist with ID '{playlistId}' not found.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage($"Playlist with ID '{playlistId}' not found.", "PLAYLIST_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(playlist, new JsonSerializerOptions { WriteIndented = true });
@@ -38,7 +39,7 @@ public class PlaylistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting playlist {PlaylistId}", playlistId);
-            return $"Error retrieving playlist <{playlistId}>: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_PLAYLIST_ERROR"));
         }
     }
 
@@ -51,7 +52,7 @@ public class PlaylistTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             var playlists = await _spotifyApi.GetUserPlaylistsAsync(accessToken);
@@ -60,7 +61,7 @@ public class PlaylistTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting user playlists");
-            return $"Error retrieving user playlists: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_USER_PLAYLISTS_ERROR"));
         }
     }
 }

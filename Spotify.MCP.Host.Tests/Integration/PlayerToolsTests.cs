@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using Spotify.MCP.Host.Tools;
+using System.Text.Json;
 using Xunit;
 
 namespace Spotify.MCP.Host.Tests.Integration;
@@ -40,7 +42,9 @@ public class PlayerToolsTests
         var result = await playerTools.GetCurrentPlaybackAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -55,7 +59,9 @@ public class PlayerToolsTests
         var result = await playerTools.GetCurrentPlaybackAsync(nullAccessToken!);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -70,7 +76,9 @@ public class PlayerToolsTests
         var result = await playerTools.GetCurrentPlaybackAsync(whitespaceAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -85,7 +93,9 @@ public class PlayerToolsTests
         var result = await playerTools.GetCurrentPlaybackAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving current playback:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -100,7 +110,9 @@ public class PlayerToolsTests
         var result = await playerTools.PausePlaybackAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -115,7 +127,9 @@ public class PlayerToolsTests
         var result = await playerTools.PausePlaybackAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error pausing playback:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -130,7 +144,9 @@ public class PlayerToolsTests
         var result = await playerTools.StartPlaybackAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -145,7 +161,9 @@ public class PlayerToolsTests
         var result = await playerTools.StartPlaybackAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error starting playback:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -161,7 +179,9 @@ public class PlayerToolsTests
         var result = await playerTools.StartPlaybackAsync(invalidAccessToken, contextUri);
 
         // Assert
-        Assert.StartsWith("Error starting playback:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -177,7 +197,9 @@ public class PlayerToolsTests
         var result = await playerTools.StartPlaybackAsync(invalidAccessToken, null, uris);
 
         // Assert
-        Assert.StartsWith("Error starting playback:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -192,7 +214,9 @@ public class PlayerToolsTests
         var result = await playerTools.SkipToNextAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -207,7 +231,9 @@ public class PlayerToolsTests
         var result = await playerTools.SkipToNextAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error skipping to next track:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -222,7 +248,9 @@ public class PlayerToolsTests
         var result = await playerTools.SkipToPreviousAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -237,6 +265,8 @@ public class PlayerToolsTests
         var result = await playerTools.SkipToPreviousAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error skipping to previous track:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

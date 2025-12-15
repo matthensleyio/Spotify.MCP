@@ -26,8 +26,10 @@ public class ArtistToolsTests
         var result = await artistTools.GetArtistAsync("non_existent_artist");
 
         // Assert
-        Assert.Contains("Error retrieving artist", result);
-        Assert.Contains("non_existent_artist", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
+        Assert.Contains("non_existent_artist", error.message);
     }
 
     [Fact]

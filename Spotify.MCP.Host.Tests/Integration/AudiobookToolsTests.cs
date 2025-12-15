@@ -86,8 +86,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobookAsync(invalidAudiobookId);
 
         // Assert
-        Assert.StartsWith("Error retrieving audiobook", result);
-        Assert.Contains("Bad Request", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -102,8 +103,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobookAsync(nonExistentAudiobookId);
 
         // Assert
-        Assert.StartsWith("Error retrieving audiobook", result);
-        Assert.Contains(nonExistentAudiobookId, result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -146,7 +148,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobooksAsync(emptyIds);
 
         // Assert
-        Assert.Equal("No audiobook IDs provided.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -161,7 +165,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobooksAsync(tooManyIds);
 
         // Assert
-        Assert.Equal("Maximum of 50 audiobook IDs allowed per request.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -195,7 +201,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobookChaptersAsync(validAudiobookId, "US", invalidLimit);
 
         // Assert
-        Assert.Equal("Limit must be between 1 and 50.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -211,7 +219,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetAudiobookChaptersAsync(validAudiobookId, "US", 20, invalidOffset);
 
         // Assert
-        Assert.Equal("Offset must be non-negative.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -226,7 +236,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetUserSavedAudiobooksAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -242,7 +254,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.GetUserSavedAudiobooksAsync(invalidAccessToken, invalidLimit);
 
         // Assert
-        Assert.Equal("Limit must be between 1 and 50.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -258,7 +272,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.SaveAudiobooksForUserAsync(emptyAccessToken, audiobookIds);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -274,7 +290,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.SaveAudiobooksForUserAsync(invalidAccessToken, emptyIds);
 
         // Assert
-        Assert.Equal("No audiobook IDs provided.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -290,7 +308,9 @@ public class AudiobookToolsTests
         var result = await audiobookTools.RemoveUserSavedAudiobooksAsync(emptyAccessToken, audiobookIds);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -306,6 +326,8 @@ public class AudiobookToolsTests
         var result = await audiobookTools.CheckUserSavedAudiobooksAsync(emptyAccessToken, audiobookIds);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

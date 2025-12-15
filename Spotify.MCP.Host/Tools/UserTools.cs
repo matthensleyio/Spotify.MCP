@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using Spotify.MCP.Host.Models;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using System.ComponentModel;
 using System.Text.Json;
@@ -28,13 +29,13 @@ public class UserTools
         {
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                return "User access token is required for this operation.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("User access token is required for this operation.", "MISSING_ACCESS_TOKEN"));
             }
 
             var user = await _spotifyApi.GetCurrentUserAsync(accessToken);
             if (user == null)
             {
-                return "Unable to retrieve user profile.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Unable to retrieve user profile.", "USER_PROFILE_NOT_FOUND"));
             }
 
             return JsonSerializer.Serialize(user, new JsonSerializerOptions { WriteIndented = true });
@@ -42,7 +43,7 @@ public class UserTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting current user");
-            return $"Error retrieving current user: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "GET_CURRENT_USER_ERROR"));
         }
     }
 }

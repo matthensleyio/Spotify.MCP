@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Spotify.MCP.Host.Models.Output;
 using Spotify.MCP.Host.Services;
 using Spotify.MCP.Host.Tools;
+using System.Text.Json;
 using Xunit;
 
 namespace Spotify.MCP.Host.Tests.Integration;
@@ -41,7 +43,7 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(clientId, redirectUri, scopes);
 
         // Assert
-        Assert.StartsWith("Authorization URL:", result);
+        Assert.False(result.StartsWith("{\"error\""), $"Expected authorization URL, but got error: {result}");
         Assert.Contains("https://accounts.spotify.com/authorize", result);
         Assert.Contains(clientId, result);
         Assert.Contains("user-read-private", result);
@@ -62,7 +64,9 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(emptyClientId, redirectUri, scopes);
 
         // Assert
-        Assert.Equal("Client ID is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -79,7 +83,9 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(clientId, emptyRedirectUri, scopes);
 
         // Assert
-        Assert.Equal("Redirect URI is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -96,7 +102,9 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(clientId, redirectUri, emptyScopes);
 
         // Assert
-        Assert.Equal("At least one scope is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -113,7 +121,9 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(nullClientId!, redirectUri, scopes);
 
         // Assert
-        Assert.Equal("Client ID is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -130,7 +140,9 @@ public class AuthToolsTests
         var result = await authTools.GetAuthorizationUrlAsync(clientId, redirectUri, whitespaceScopes);
 
         // Assert
-        Assert.Equal("At least one scope is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -148,7 +160,9 @@ public class AuthToolsTests
         var result = await authTools.ExchangeAuthorizationCodeAsync(emptyCode, redirectUri, clientId, clientSecret);
 
         // Assert
-        Assert.Equal("Authorization code is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -166,7 +180,9 @@ public class AuthToolsTests
         var result = await authTools.ExchangeAuthorizationCodeAsync(code, emptyRedirectUri, clientId, clientSecret);
 
         // Assert
-        Assert.Equal("Redirect URI is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -184,7 +200,9 @@ public class AuthToolsTests
         var result = await authTools.ExchangeAuthorizationCodeAsync(code, redirectUri, emptyClientId, clientSecret);
 
         // Assert
-        Assert.Equal("Client ID is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -202,7 +220,9 @@ public class AuthToolsTests
         var result = await authTools.ExchangeAuthorizationCodeAsync(code, redirectUri, clientId, emptyClientSecret);
 
         // Assert
-        Assert.Equal("Client secret is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -220,7 +240,9 @@ public class AuthToolsTests
         var result = await authTools.ExchangeAuthorizationCodeAsync(invalidCode, redirectUri, clientId, clientSecret);
 
         // Assert
-        Assert.StartsWith("Error exchanging authorization code:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -237,7 +259,9 @@ public class AuthToolsTests
         var result = await authTools.RefreshAccessTokenAsync(emptyRefreshToken, clientId, clientSecret);
 
         // Assert
-        Assert.Equal("Refresh token is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -254,7 +278,9 @@ public class AuthToolsTests
         var result = await authTools.RefreshAccessTokenAsync(refreshToken, emptyClientId, clientSecret);
 
         // Assert
-        Assert.Equal("Client ID is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -271,7 +297,9 @@ public class AuthToolsTests
         var result = await authTools.RefreshAccessTokenAsync(refreshToken, clientId, emptyClientSecret);
 
         // Assert
-        Assert.Equal("Client secret is required.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -288,7 +316,9 @@ public class AuthToolsTests
         var result = await authTools.RefreshAccessTokenAsync(invalidRefreshToken, clientId, clientSecret);
 
         // Assert
-        Assert.StartsWith("Error refreshing access token:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -304,7 +334,7 @@ public class AuthToolsTests
         // Assert
         // This should either return a token or an error depending on configuration
         Assert.True(
-            result.StartsWith("Access Token:") || result.StartsWith("Error getting client credentials token:"),
+            result.Contains("\"access_token\"") || result.Contains("\"error\""),
             $"Expected either access token or error message, but got: {result}"
         );
     }

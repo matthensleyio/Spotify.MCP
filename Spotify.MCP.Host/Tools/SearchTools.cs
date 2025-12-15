@@ -29,34 +29,44 @@ public class SearchTools
         [Description("Index of the first result to return (for pagination)")] int offset = 0,
         [Description("Optional access token for user-specific data")] string? accessToken = null)
     {
-        if (string.IsNullOrWhiteSpace(query))
+        try
         {
-            return "Search query cannot be empty.";
-        }
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
+            }
 
-        if (limit < 1 || limit > 50)
+            if (limit < 1 || limit > 50)
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
+            }
+
+            if (offset < 0)
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Offset must be non-negative.", "INVALID_OFFSET"));
+            }
+
+            var typeArray = types.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(t => t.Trim().ToLowerInvariant())
+                                 .ToArray();
+
+            var validTypes = new[] { "track", "album", "artist", "playlist", "audiobook" };
+            var invalidTypes = typeArray.Except(validTypes).ToArray();
+            if (invalidTypes.Any())
+            {
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage(
+                    $"Invalid search types: {string.Join(", ", invalidTypes)}. Valid types are: {string.Join(", ", validTypes)}",
+                    "INVALID_TYPES"));
+            }
+
+            var searchResponse = await _spotifyApi.SearchAsync(query, typeArray, limit, offset, accessToken);
+            return JsonSerializer.Serialize(searchResponse, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch (Exception ex)
         {
-            return "Limit must be between 1 and 50.";
+            _logger.LogError(ex, "Error performing search for query '{Query}'", query);
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_ERROR"));
         }
-
-        if (offset < 0)
-        {
-            return "Offset must be non-negative.";
-        }
-
-        var typeArray = types.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                             .Select(t => t.Trim().ToLowerInvariant())
-                             .ToArray();
-
-        var validTypes = new[] { "track", "album", "artist", "playlist", "audiobook" };
-        var invalidTypes = typeArray.Except(validTypes).ToArray();
-        if (invalidTypes.Any())
-        {
-            return $"Invalid search types: {string.Join(", ", invalidTypes)}. Valid types are: {string.Join(", ", validTypes)}";
-        }
-
-        var searchResponse = await _spotifyApi.SearchAsync(query, typeArray, limit, offset, accessToken);
-        return JsonSerializer.Serialize(searchResponse, new JsonSerializerOptions { WriteIndented = true });
     }
 
     [McpServerTool(Name = "search_tracks", Title = "Search Tracks")]
@@ -71,12 +81,12 @@ public class SearchTools
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return "Search query cannot be empty.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             var searchResponse = await _spotifyApi.SearchAsync(query, new[] { "track" }, limit, offset, accessToken);
@@ -87,7 +97,7 @@ public class SearchTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching for tracks '{Query}'", query);
-            return $"Error performing track search: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_TRACKS_ERROR"));
         }
     }
 
@@ -103,12 +113,12 @@ public class SearchTools
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return "Search query cannot be empty.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             var searchResponse = await _spotifyApi.SearchAsync(query, new[] { "artist" }, limit, offset, accessToken);
@@ -119,7 +129,7 @@ public class SearchTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching for artists '{Query}'", query);
-            return $"Error performing artist search: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_ARTISTS_ERROR"));
         }
     }
 
@@ -135,12 +145,12 @@ public class SearchTools
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return "Search query cannot be empty.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             var searchResponse = await _spotifyApi.SearchAsync(query, new[] { "album" }, limit, offset, accessToken);
@@ -151,7 +161,7 @@ public class SearchTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching for albums '{Query}'", query);
-            return $"Error performing album search: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_ALBUMS_ERROR"));
         }
     }
 
@@ -167,12 +177,12 @@ public class SearchTools
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return "Search query cannot be empty.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             var searchResponse = await _spotifyApi.SearchAsync(query, new[] { "playlist" }, limit, offset, accessToken);
@@ -183,7 +193,7 @@ public class SearchTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching for playlists '{Query}'", query);
-            return $"Error performing playlist search: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_PLAYLISTS_ERROR"));
         }
     }
 
@@ -199,12 +209,12 @@ public class SearchTools
         {
             if (string.IsNullOrWhiteSpace(query))
             {
-                return "Search query cannot be empty.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Search query cannot be empty.", "EMPTY_QUERY"));
             }
 
             if (limit < 1 || limit > 50)
             {
-                return "Limit must be between 1 and 50.";
+                return JsonSerializer.Serialize(ErrorResponse.FromMessage("Limit must be between 1 and 50.", "INVALID_LIMIT"));
             }
 
             var searchResponse = await _spotifyApi.SearchAsync(query, new[] { "audiobook" }, limit, offset, accessToken);
@@ -215,7 +225,7 @@ public class SearchTools
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error searching for audiobooks '{Query}'", query);
-            return $"Error performing audiobook search: {ex.Message}";
+            return JsonSerializer.Serialize(ErrorResponse.FromException(ex, "SEARCH_AUDIOBOOKS_ERROR"));
         }
     }
 }

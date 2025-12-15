@@ -10,6 +10,7 @@
     <Authors>Matt Hensley</Authors>
     <PackageIcon>spotify-icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <UserSecretsId>42f60ad0-63c0-463c-a7fc-54adc90e4d8d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,9 +27,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
-    <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.4" />
+    <PackageReference Include="ModelContextProtocol" Version="0.5.0-preview.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

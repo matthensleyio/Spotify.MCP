@@ -42,7 +42,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(emptyAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -57,7 +59,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(nullAccessToken!);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -72,7 +76,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(whitespaceAccessToken);
 
         // Assert
-        Assert.Equal("User access token is required for this operation.", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -87,7 +93,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(invalidAccessToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving current user:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -110,7 +118,9 @@ public class UserToolsTests
         // Assert
         // Since we don't have a real token, this will fail with an error
         // In a real test environment with proper tokens, you would validate:
-        Assert.StartsWith("Error retrieving current user:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
 
         // With a real token, you would validate like this:
         /*
@@ -146,7 +156,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(expiredAccessToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving current user:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
         // Expired tokens typically result in 401 Unauthorized errors
     }
 
@@ -162,7 +174,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(malformedAccessToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving current user:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -177,7 +191,9 @@ public class UserToolsTests
         var result = await userTools.GetCurrentUserAsync(insufficientScopeToken);
 
         // Assert
-        Assert.StartsWith("Error retrieving current user:", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
         // Insufficient scope typically results in 403 Forbidden errors
     }
 }

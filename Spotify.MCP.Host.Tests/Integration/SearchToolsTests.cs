@@ -199,7 +199,9 @@ public class SearchToolsTests
     public async Task SearchAsync_InvalidQuery_ReturnsErrorMessage()
     {
         var result = await _searchTools.SearchAsync("");
-        Assert.Contains("Search query cannot be empty", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -207,7 +209,9 @@ public class SearchToolsTests
     public async Task SearchAsync_InvalidLimit_ReturnsErrorMessage()
     {
         var result = await _searchTools.SearchAsync("test", limit: 0);
-        Assert.Contains("Limit must be between 1 and 50", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 
     [Fact]
@@ -215,6 +219,8 @@ public class SearchToolsTests
     public async Task SearchAsync_InvalidOffset_ReturnsErrorMessage()
     {
         var result = await _searchTools.SearchAsync("test", offset: -1);
-        Assert.Contains("Offset must be non-negative", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
     }
 }

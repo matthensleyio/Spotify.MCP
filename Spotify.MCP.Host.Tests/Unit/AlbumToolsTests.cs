@@ -26,8 +26,10 @@ public class AlbumToolsTests
         var result = await albumTools.GetAlbumAsync("invalid_id");
 
         // Assert
-        Assert.Contains("Error retrieving album", result);
-        Assert.Contains("invalid_id", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
+        Assert.Contains("Bad Request", error.message);
     }
 
     [Fact]

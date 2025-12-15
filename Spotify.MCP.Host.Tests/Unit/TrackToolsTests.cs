@@ -27,8 +27,10 @@ public class TrackToolsTests
         var result = await trackTools.GetTrackAsync("malformed_track_id");
 
         // Assert
-        Assert.Contains("Error retrieving track", result);
-        Assert.Contains("malformed_track_id", result);
+        var error = JsonSerializer.Deserialize<ErrorResponse>(result);
+        Assert.NotNull(error);
+        Assert.True(error.error);
+        Assert.Contains("Deserialization", error.message);
     }
 
     [Fact]
